@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Light controller</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      button.control {
+        display: block;
+        font-size: 50px;
+        height: 200px;
+        margin: 20px auto;
+        width: 90%;
+      }
+    </style>
+  </head>
+  <body>
+    <button class="control" onclick="turn_light(true)">On</button>
+    <button class="control" onclick="turn_light(false)">Off</button>
+
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+      console.log('loaded...');
+      var socket = io();
+      var turn_light = function(onoff) {
+        console.log('turn light: ' + onoff);
+        socket.emit('write', {pin: 3, on: onoff});
+      }
+    </script>
+  </body>
+</html>

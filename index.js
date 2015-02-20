@@ -2,20 +2,20 @@ var express = require('express');
 var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
-//var gpio = require('pi-gpio');
+var gpio = require('./gpio-debug');
+//var gpio = require('./gpio');
 
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
 io.on('connection', function(socket) {
-  console.log('a user connected');
+  console.log('user connected: ' + socket.id);
   socket.on('disconnect', function() {
-    console.log('a user disconnected');
+    console.log('user disconnected: ' + socket.id);
   });
-  socket.on('chat message', function(msg) {
-    console.log('message: ' + msg);
-    io.emit('chat message', msg);
+  socket.on('write', function(msg) {
+    gpio.write(msg.pin, msg.on);
   });
 });
 
