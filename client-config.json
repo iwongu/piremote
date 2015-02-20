@@ -1,0 +1,6 @@
+{
+  "nogpio": true,
+  "port": 4000,
+  "server": "http://localhost:3000"
+}
+

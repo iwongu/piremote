@@ -2,8 +2,10 @@ var express = require('express');
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-//var gpio = require('./gpio-debug');
-var gpio = require('./gpio');
+var fs = require('fs');
+
+var config = JSON.parse(fs.readFileSync('client-config.json'));
+var gpio = config.nogpio ? require('./gpio-debug') : require('./gpio');
 
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html');
@@ -22,7 +24,7 @@ io.of('/client').
   });
 
 // from server.
-var socket = require('socket.io-client')('http://localhost:3000/pi');
+var socket = require('socket.io-client')(config.server + '/pi');
 socket.on('connect', function(){
   console.log('connect');
 });
@@ -33,6 +35,6 @@ socket.on('write', function(msg) {
   gpio.write(msg.pin, msg.on);
 });
 
-server.listen(4000, function() {
-  console.log('listening on *:4000');
+server.listen(config.port, function() {
+  console.log('listening on *:' + config.port);
 });

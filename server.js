@@ -2,8 +2,9 @@ var express = require('express');
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-//var gpio = require('./gpio-debug');
-//var gpio = require('./gpio');
+var fs = require('fs');
+
+var config = JSON.parse(fs.readFileSync('server-config.json'));
 
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html');
@@ -37,6 +38,6 @@ io.of('/pi')
     });
   });
 
-server.listen(3000, function() {
-  console.log('listening on *:3000');
+server.listen(config.port, function() {
+  console.log('listening on *:' + config.port);
 });
