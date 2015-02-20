@@ -25,7 +25,10 @@
       var socket = io.connect('/client');
       var turn_light = function(onoff) {
         console.log('turn light: ' + onoff);
+        /*
         socket.emit('write', {pin: 3, on: onoff});
+        */
+        socket.emit('write-serial', onoff ? '1' : '0');
       }
     </script>
   </body>
