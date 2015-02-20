@@ -1,7 +1,7 @@
 {
   "nogpio": true,
   "port": 4000,
-  "server": "http://localhost:3000",
+  "server": "http://192.168.86.160:3000",
   "serial": "/dev/ttyACM0"
 }
 

@@ -38,6 +38,7 @@ socket.on('write', function(msg) {
   gpio.write(msg.pin, msg.on);
 });
 socket.on('write-serial', function(msg) {
+  console.log('write-serial: ' + msg);
   serialPort.write(msg, function(err) {
     if (err) {
       console.log('err ' + err);
