@@ -35,6 +35,21 @@ socket.on('write', function(msg) {
   gpio.write(msg.pin, msg.on);
 });
 
+// for serial port.
+var SerialPort = require("serialport").SerialPort
+var serialPort = new SerialPort(config.serial);
+
+serialPort.on("open", function () {
+  console.log('open');
+  serialPort.on('data', function(data) {
+    console.log('data received: ' + data);
+  });
+  serialPort.write("1", function(err, results) {
+    console.log('err ' + err);
+    console.log('results ' + results);
+  });
+});
+
 server.listen(config.port, function() {
   console.log('listening on *:' + config.port);
 });
