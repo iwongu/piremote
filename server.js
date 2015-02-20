@@ -25,6 +25,12 @@ io.of('/client')
         pis[pi].emit('write', msg);
       }
     });
+    socket.on('write-serial', function(msg) {
+      console.log('write-serial(' + msg + ')');
+      for (pi in pis) {
+        pis[pi].emit('write-serial', msg);
+      }
+    });
   });
 
 // from pi.
