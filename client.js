@@ -3,7 +3,7 @@ var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var fs = require('fs');
-var config = JSON.parse(fs.readFileSync('client-config.json'));
+var config = require('./lib/config')('client-config.json');
 var gpio = config.nogpio ? require('./lib/gpio-debug') : require('./lib/gpio');
 
 var SerialPort = require("serialport").SerialPort
@@ -11,7 +11,7 @@ var SerialPort = require("serialport").SerialPort
 var servers = {};
 
 app.get('/', function(req, res) {
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(__dirname + '/pi_b.html');
 });
 app.use('/static', express.static(__dirname + '/static'));
 

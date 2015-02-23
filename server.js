@@ -7,7 +7,7 @@ var fs = require('fs');
 var config = JSON.parse(fs.readFileSync('server-config.json'));
 
 app.get('/', function(req, res) {
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(__dirname + '/pi_b.html');
 });
 
 var webclients = require('./lib/webclients')(config, io);
