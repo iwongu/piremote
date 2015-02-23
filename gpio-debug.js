@@ -6,7 +6,7 @@ GPIO.prototype.write = function(pin, on) {
 
 GPIO.prototype.read = function(pin, callback) {
   setTimeout(function() {
-    callback(Math.random() < .5);
+    callback({pin: pin, on: Math.random() < .5, dir: 'out'});
   }, 500);
 }
 

@@ -33,7 +33,7 @@ io.of('/client')
       console.log('gpio-read(' + msg.pin + ')');
       gpio.read(msg.pin, function(value) {
         for (client in clients) {
-          clients[client].emit('gpio-value', {pin: msg.pin, on: value});
+          clients[client].emit('gpio-value', value);
         }
       });
     });
@@ -65,7 +65,7 @@ socket.on('gpio-read', function(msg) {
   console.log('gpio-read(' + msg.pin + ')');
   gpio.read(msg.pin, function(value) {
     for (server in servers) {
-      servers[server].emit('gpio-value', {pin: msg.pin, on: value});
+      servers[server].emit('gpio-value', value);
     }
   });
 });

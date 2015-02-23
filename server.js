@@ -52,7 +52,7 @@ io.of('/pi')
       delete pis[socket.id];
     });
     socket.on('gpio-value', function(msg) {
-      console.log('gpio-value(' + msg.pin + ', ' + msg.on + ')');
+      console.log('gpio-value(' + msg.pin + ', ' + msg.on + ', ' + msg.dir + ')');
       for (client in clients) {
         clients[client].emit('gpio-value', msg);
       }

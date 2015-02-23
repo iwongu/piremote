@@ -163,10 +163,16 @@
         $('.gpio').each(function() {
           var pin = parseInt($(this).text(), 10);
           if (msg.pin == pin) {
-            if (msg.on) {
-              $(this).addClass('onoff');
-            } else {
+            if (msg.dir == 'out') {
+              $(this).addClass('out');
               $(this).removeClass('onoff');
+            } else {
+              $(this).removeClass('out');
+              if (msg.on) {
+                $(this).addClass('onoff');
+              } else {
+                $(this).removeClass('onoff');
+              }
             }
           }
         });
