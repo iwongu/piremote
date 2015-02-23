@@ -11,6 +11,7 @@
       .layout {
         font-size: 30px;
         margin: 0 auto;
+        text-align: center;
         width: 400px;
       }
       .layout table {
@@ -22,7 +23,6 @@
       .layout .pin {
         border: 3px solid black;
         margin: 3px;
-        text-align: center;
       }
       .layout .right {
         font-size: 20px;
@@ -47,14 +47,18 @@
       .layout .gpio.onoff {
         background-color: green;
       }
+      .layout .pindir {
+        cursor: pointer;
+        font-size: 15px;
+      }
       .refresh {
         margin: 0 auto;
-        text-align: center;
       }
     </style>
   </head>
   <body>
     <div class="layout">
+      <h1>pi remote</h1>
       <table>
         <tr>
           <td><div class="left">3.3V</div></td>
@@ -63,76 +67,76 @@
           <td><div class="right">5V</div></td>
         </tr>
         <tr>
-          <td><div class="left"></div></td>
+          <td><div class="left pindir" value="3"></div></td>
           <td><div class="pin gpio">3</div></td>
           <td><div class="pin v5">4</div></td>
           <td><div class="right">5V</div></td>
         </tr>
         <tr>
-          <td><div class="left"></div></td>
+          <td><div class="left pindir" value="5"></div></td>
           <td><div class="pin gpio">5</div></td>
           <td><div class="pin gnd">6</div></td>
           <td><div class="right">GND</div></td>
         </tr>
         <tr>
-          <td><div class="left"></div></td>
+          <td><div class="left pindir" value="7"></div></td>
           <td><div class="pin gpio">7</div></td>
           <td><div class="pin gpio">8</div></td>
-          <td><div class="right"></div></td>
+          <td><div class="right pindir" value="8"></div></td>
         </tr>
         <tr>
           <td><div class="left">GND</div></td>
           <td><div class="pin gnd">9</div></td>
           <td><div class="pin gpio">10</div></td>
-          <td><div class="right"></div></td>
+          <td><div class="right pindir" value="10"></div></td>
         </tr>
         <tr>
-          <td><div class="left"></div></td>
+          <td><div class="left pindir" value="11"></div></td>
           <td><div class="pin gpio">11</div></td>
           <td><div class="pin gpio">12</div></td>
-          <td><div class="right"></div></td>
+          <td><div class="right pindir" value="12"></div></td>
         </tr>
         <tr>
-          <td><div class="left"></div></td>
+          <td><div class="left pindir" value="13"></div></td>
           <td><div class="pin gpio">13</div></td>
           <td><div class="pin gnd">14</div></td>
           <td><div class="right">GND</div></td>
         </tr>
         <tr>
-          <td><div class="left"></div></td>
+          <td><div class="left pindir" value="15"></div></td>
           <td><div class="pin gpio">15</div></td>
           <td><div class="pin gpio">16</div></td>
-          <td><div class="right"></div></td>
+          <td><div class="right pindir" value="16"></div></td>
         </tr>
         <tr>
           <td><div class="left">3.3v</div></td>
           <td><div class="pin v3">17</div></td>
           <td><div class="pin gpio">18</div></td>
-          <td><div class="right"></div></td>
+          <td><div class="right pindir" value="18"></div></td>
         </tr>
         <tr>
-          <td><div class="left"></div></td>
+          <td><div class="left pindir" value="19"></div></td>
           <td><div class="pin gpio">19</div></td>
           <td><div class="pin gnd">20</div></td>
           <td><div class="right">GND</div></td>
         </tr>
         <tr>
-          <td><div class="left"></div></td>
+          <td><div class="left pindir" value="21"></div></td>
           <td><div class="pin gpio">21</div></td>
           <td><div class="pin gpio">22</div></td>
-          <td><div class="right"></div></td>
+          <td><div class="right pindir" value="22"></div></td>
         </tr>
         <tr>
-          <td><div class="left"></div></td>
+          <td><div class="left pindir" value="23"></div></td>
           <td><div class="pin gpio">23</div></td>
           <td><div class="pin gpio">24</div></td>
-          <td><div class="right"></div></td>
+          <td><div class="right pindir" value="24"></div></td>
         </tr>
         <tr>
           <td><div class="left">GND</div></td>
           <td><div class="pin gnd">25</div></td>
           <td><div class="pin gpio">26</div></td>
-          <td><div class="right"></div></td>
+          <td><div class="right pindir" value="26"></div></td>
         </tr>
       </table>
       <div class="refresh"><a href="javascript:void(0)">refresh all</a></div>
@@ -143,21 +147,39 @@
     <script>
       console.log('loaded...');
       var socket = io.connect('/client');
-      $('.gpio').each(function() {
-        $(this).bind('click', function() {
-          var pin = parseInt($(this).text(), 10);
-          var onoff = !$(this).hasClass('onoff');
-          console.log('gpio-write(' + pin + ', ' + onoff + ')');
-          socket.emit('gpio-write', {pin: pin, on: onoff});
-          $(this).toggleClass('onoff');
-        });
-      });
-      $('.refresh').bind('click', function() {
+
+      var refreshAll = function() {
         var pins = [3,5,7,8,10,11,12,13,15,16,18,19,21,22,23,24,26];
         for (pin in pins) {
           console.log('gpio-read(' + pin + ')');
           socket.emit('gpio-read', {pin: pins[pin]});
         }
+      };
+      $('.gpio').each(function() {
+        $(this).bind('click', function() {
+          var pin = parseInt($(this).text(), 10);
+          var dir = $('div[value=' + pin + ']').text().toLowerCase();
+          if (dir == 'out') {
+            var onoff = !$(this).hasClass('onoff');
+            console.log('gpio-write(' + pin + ', ' + onoff + ')');
+            socket.emit('gpio-write', {pin: pin, on: onoff});
+            $(this).toggleClass('onoff');
+          }
+        });
+      });
+      $('.pindir').each(function() {
+        $(this).bind('click', function() {
+          var pin = parseInt($(this).attr('value'), 10);
+          var dir = $(this).text().toLowerCase();
+          dir = dir == 'in' ? 'out' : 'in';
+          console.log('gpio-direction(' + pin + ', ' + dir + ')');
+          socket.emit('gpio-direction', {pin: pin, dir: dir});
+        });
+      });
+      $('.refresh').bind('click', refreshAll);
+      socket.on('connect', function() {
+        console.log('connect');
+        refreshAll();
       });
       socket.on('gpio-value', function(msg) {
         $('.gpio').each(function() {
@@ -174,6 +196,7 @@
                 $(this).removeClass('onoff');
               }
             }
+            $('div[value=' + pin + ']').text(msg.dir.toUpperCase());
           }
         });
       });

@@ -37,6 +37,14 @@ io.of('/client')
         }
       });
     });
+    socket.on('gpio-direction', function(msg) {
+      console.log('gpio-direction(' + msg.pin + ', ' + msg.dir + ')');
+      gpio.direction(msg.pin, msg.dir, function(value) {
+        for (client in clients) {
+          clients[client].emit('gpio-value', value);
+        }
+      });
+    });
     socket.on('serial-write', function(msg) {
       console.log('serial-write(' + msg + ')');
       serialPort.write(msg, function(err) {
@@ -49,17 +57,25 @@ io.of('/client')
 
 // from server.
 var socket = require('socket.io-client')(config.server + '/pi');
-socket.on('connect', function(){
+socket.on('connect', function() {
   console.log('connect');
   servers[socket.id] = socket;
 });
-socket.on('disconnect', function(){
+socket.on('disconnect', function() {
   console.log('disconnect');
   delete servers[socket.id];
 });
 socket.on('gpio-write', function(msg) {
   console.log('gpio-write(' + msg.pin + ', ' + msg.on + ')');
   gpio.write(msg.pin, msg.on);
+});
+socket.on('gpio-direction', function(msg) {
+  console.log('gpio-direction(' + msg.pin + ', ' + msg.dir + ')');
+  gpio.direction(msg.pin, msg.dir, function(value) {
+    for (server in servers) {
+      servers[server].emit('gpio-value', value);
+    }
+  });
 });
 socket.on('gpio-read', function(msg) {
   console.log('gpio-read(' + msg.pin + ')');

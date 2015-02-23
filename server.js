@@ -34,6 +34,12 @@ io.of('/client')
         pis[pi].emit('gpio-read', msg);
       }
     });
+    socket.on('gpio-direction', function(msg) {
+      console.log('gpio-direction(' + msg.pin + ', ' + msg.dir + ')');
+      for (pi in pis) {
+        pis[pi].emit('gpio-direction', msg);
+      }
+    });
     socket.on('serial-write', function(msg) {
       console.log('serial-write(' + msg + ')');
       for (pi in pis) {
