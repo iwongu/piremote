@@ -2,34 +2,151 @@
 <html>
   <head>
     <title>Light controller</title>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; }
-      body { font: 13px Helvetica, Arial; }
-      button.control {
-        display: block;
-        font-size: 50px;
-        height: 200px;
-        margin: 20px auto;
-        width: 90%;
+      body {
+        font-family: 'Open Sans', sans-serif;
+      }
+      .layout {
+        font-size: 30px;
+        margin: 0 auto;
+        width: 400px;
+      }
+      .layout table {
+        width: 100%;
+      }
+      .layout table td {
+        width: 25%;
+      }
+      .layout .pin {
+        border: 3px solid black;
+        margin: 3px;
+        text-align: center;
+      }
+      .layout .right {
+        font-size: 20px;
+        text-align: left;
+      }
+      .layout .left {
+        font-size: 20px;
+        text-align: right;
+      }
+      .layout .v3 {
+        background-color: orange;
+      }
+      .layout .v5 {
+        background-color: red;
+      }
+      .layout .gnd {
+        background-color: grey;
+      }
+      .layout .gpio {
+        cursor: pointer;
+      }
+      .layout .gpio.onoff {
+        background-color: green;
       }
     </style>
   </head>
   <body>
-    <button class="control" onclick="turn_light(true)">On</button>
-    <button class="control" onclick="turn_light(false)">Off</button>
-
+    <div class="layout">
+      <table>
+        <tr>
+          <td><div class="left">3.3V</div></td>
+          <td><div class="pin v3">1</div></td>
+          <td><div class="pin v5">2</div></td>
+          <td><div class="right">5V</div></td>
+        </tr>
+        <tr>
+          <td><div class="left"></div></td>
+          <td><div class="pin gpio">3</div></td>
+          <td><div class="pin v5">4</div></td>
+          <td><div class="right">5V</div></td>
+        </tr>
+        <tr>
+          <td><div class="left"></div></td>
+          <td><div class="pin gpio">5</div></td>
+          <td><div class="pin gnd">6</div></td>
+          <td><div class="right">GND</div></td>
+        </tr>
+        <tr>
+          <td><div class="left"></div></td>
+          <td><div class="pin gpio">7</div></td>
+          <td><div class="pin gpio">8</div></td>
+          <td><div class="right"></div></td>
+        </tr>
+        <tr>
+          <td><div class="left">GND</div></td>
+          <td><div class="pin gnd">9</div></td>
+          <td><div class="pin gpio">10</div></td>
+          <td><div class="right"></div></td>
+        </tr>
+        <tr>
+          <td><div class="left"></div></td>
+          <td><div class="pin gpio">11</div></td>
+          <td><div class="pin gpio">12</div></td>
+          <td><div class="right"></div></td>
+        </tr>
+        <tr>
+          <td><div class="left"></div></td>
+          <td><div class="pin gpio">13</div></td>
+          <td><div class="pin gnd">14</div></td>
+          <td><div class="right">GND</div></td>
+        </tr>
+        <tr>
+          <td><div class="left"></div></td>
+          <td><div class="pin gpio">15</div></td>
+          <td><div class="pin gpio">16</div></td>
+          <td><div class="right"></div></td>
+        </tr>
+        <tr>
+          <td><div class="left">3.3v</div></td>
+          <td><div class="pin v3">17</div></td>
+          <td><div class="pin gpio">18</div></td>
+          <td><div class="right"></div></td>
+        </tr>
+        <tr>
+          <td><div class="left"></div></td>
+          <td><div class="pin gpio">19</div></td>
+          <td><div class="pin gnd">20</div></td>
+          <td><div class="right">GND</div></td>
+        </tr>
+        <tr>
+          <td><div class="left"></div></td>
+          <td><div class="pin gpio">21</div></td>
+          <td><div class="pin gpio">22</div></td>
+          <td><div class="right"></div></td>
+        </tr>
+        <tr>
+          <td><div class="left"></div></td>
+          <td><div class="pin gpio">23</div></td>
+          <td><div class="pin gpio">24</div></td>
+          <td><div class="right"></div></td>
+        </tr>
+        <tr>
+          <td><div class="left">GND</div></td>
+          <td><div class="pin gnd">25</div></td>
+          <td><div class="pin gpio">26</div></td>
+          <td><div class="right"></div></td>
+        </tr>
+      </table>
+    </div>
+      
     <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
       console.log('loaded...');
       var socket = io.connect('/client');
-      var turn_light = function(onoff) {
-        console.log('turn light: ' + onoff);
-        /*
-        socket.emit('write', {pin: 3, on: onoff});
-        */
-        socket.emit('write-serial', onoff ? '1' : '0');
-      }
+      $('.gpio').each(function() {
+        $(this).bind('click', function() {
+          var pin = parseInt($(this).text(), 10);
+          var onoff = !$(this).hasClass('onoff');
+          console.log('write{' + pin + ', ' + onoff + '}');
+          socket.emit('write', {pin: pin, on: onoff});
+          $(this).toggleClass('onoff');
+        });
+      });
     </script>
   </body>
 </html>
