@@ -13,6 +13,7 @@ var servers = {};
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html');
 });
+app.use('/static', express.static(__dirname + '/static'));
 
 var webclients = require('./lib/webclients')(config, io);
 webclients

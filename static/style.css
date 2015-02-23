@@ -1,0 +1,50 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Open Sans', sans-serif;
+}
+.layout {
+    font-size: 30px;
+    margin: 0 auto;
+    text-align: center;
+    width: 400px;
+}
+.layout table {
+    width: 100%;
+}
+.layout table td {
+    width: 25%;
+}
+.layout .pin {
+    border: 3px solid black;
+    margin: 3px;
+}
+.layout .right {
+    font-size: 20px;
+    text-align: left;
+}
+.layout .left {
+    font-size: 20px;
+    text-align: right;
+}
+.layout .v3 {
+    background-color: orange;
+}
+.layout .v5 {
+    background-color: red;
+}
+.layout .gnd {
+    background-color: grey;
+}
+.layout .gpio {
+    cursor: pointer;
+}
+.layout .gpio.onoff {
+    background-color: green;
+}
+.layout .pindir {
+    cursor: pointer;
+    font-size: 15px;
+}
+.refresh {
+    margin: 0 auto;
+}

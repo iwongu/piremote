@@ -3,58 +3,7 @@
   <head>
     <title>Light controller</title>
     <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
-    <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      body {
-        font-family: 'Open Sans', sans-serif;
-      }
-      .layout {
-        font-size: 30px;
-        margin: 0 auto;
-        text-align: center;
-        width: 400px;
-      }
-      .layout table {
-        width: 100%;
-      }
-      .layout table td {
-        width: 25%;
-      }
-      .layout .pin {
-        border: 3px solid black;
-        margin: 3px;
-      }
-      .layout .right {
-        font-size: 20px;
-        text-align: left;
-      }
-      .layout .left {
-        font-size: 20px;
-        text-align: right;
-      }
-      .layout .v3 {
-        background-color: orange;
-      }
-      .layout .v5 {
-        background-color: red;
-      }
-      .layout .gnd {
-        background-color: grey;
-      }
-      .layout .gpio {
-        cursor: pointer;
-      }
-      .layout .gpio.onoff {
-        background-color: green;
-      }
-      .layout .pindir {
-        cursor: pointer;
-        font-size: 15px;
-      }
-      .refresh {
-        margin: 0 auto;
-      }
-    </style>
+    <link href='/static/style.css' rel='stylesheet' type='text/css'>
   </head>
   <body>
     <div class="layout">
@@ -144,62 +93,6 @@
       
     <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
-    <script>
-      console.log('loaded...');
-      var socket = io.connect('/client');
-
-      var refreshAll = function() {
-        var pins = [3,5,7,8,10,11,12,13,15,16,18,19,21,22,23,24,26];
-        for (pin in pins) {
-          console.log('gpio-read(' + pin + ')');
-          socket.emit('gpio-read', {pin: pins[pin]});
-        }
-      };
-      $('.gpio').each(function() {
-        $(this).bind('click', function() {
-          var pin = parseInt($(this).text(), 10);
-          var dir = $('div[value=' + pin + ']').text().toLowerCase();
-          if (dir == 'out') {
-            var onoff = !$(this).hasClass('onoff');
-            console.log('gpio-write(' + pin + ', ' + onoff + ')');
-            socket.emit('gpio-write', {pin: pin, on: onoff});
-            $(this).toggleClass('onoff');
-          }
-        });
-      });
-      $('.pindir').each(function() {
-        $(this).bind('click', function() {
-          var pin = parseInt($(this).attr('value'), 10);
-          var dir = $(this).text().toLowerCase();
-          dir = dir == 'in' ? 'out' : 'in';
-          console.log('gpio-direction(' + pin + ', ' + dir + ')');
-          socket.emit('gpio-direction', {pin: pin, dir: dir});
-        });
-      });
-      $('.refresh').bind('click', refreshAll);
-      socket.on('connect', function() {
-        console.log('connect');
-        refreshAll();
-      });
-      socket.on('gpio-value', function(msg) {
-        $('.gpio').each(function() {
-          var pin = parseInt($(this).text(), 10);
-          if (msg.pin == pin) {
-            if (msg.dir == 'out') {
-              $(this).addClass('out');
-              $(this).removeClass('onoff');
-            } else {
-              $(this).removeClass('out');
-              if (msg.on) {
-                $(this).addClass('onoff');
-              } else {
-                $(this).removeClass('onoff');
-              }
-            }
-            $('div[value=' + pin + ']').text(msg.dir.toUpperCase());
-          }
-        });
-      });
-    </script>
+    <script src="/static/pi.js"></script>
   </body>
 </html>
