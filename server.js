@@ -10,25 +10,34 @@ app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
+var clients = {};
 var pis = {};
 
 // from browsers.
 io.of('/client')
   .on('connection', function(socket) {
     console.log('client connected: ' + socket.id);
+    clients[socket.id] = socket;
     socket.on('disconnect', function() {
       console.log('client disconnected: ' + socket.id);
+      delete clients[socket.id];
     });
-    socket.on('write', function(msg) {
-      console.log('write(' + msg.pin + ', ' + msg.on + ')');
+    socket.on('gpio-write', function(msg) {
+      console.log('gpio-write(' + msg.pin + ', ' + msg.on + ')');
       for (pi in pis) {
-        pis[pi].emit('write', msg);
+        pis[pi].emit('gpio-write', msg);
       }
     });
-    socket.on('write-serial', function(msg) {
-      console.log('write-serial(' + msg + ')');
+    socket.on('gpio-read', function(msg) {
+      console.log('gpio-read(' + msg.pin + ')');
       for (pi in pis) {
-        pis[pi].emit('write-serial', msg);
+        pis[pi].emit('gpio-read', msg);
+      }
+    });
+    socket.on('serial-write', function(msg) {
+      console.log('serial-write(' + msg + ')');
+      for (pi in pis) {
+        pis[pi].emit('serial-write', msg);
       }
     });
   });
@@ -41,6 +50,12 @@ io.of('/pi')
     socket.on('disconnect', function() {
       console.log('pi disconnected: ' + socket.id);
       delete pis[socket.id];
+    });
+    socket.on('gpio-value', function(msg) {
+      console.log('gpio-value(' + msg.pin + ', ' + msg.on + ')');
+      for (client in clients) {
+        clients[client].emit('gpio-value', msg);
+      }
     });
   });
 

@@ -8,21 +8,42 @@ var config = JSON.parse(fs.readFileSync('client-config.json'));
 var gpio = config.nogpio ? require('./gpio-debug') : require('./gpio');
 
 var SerialPort = require("serialport").SerialPort
-var serialPort = new SerialPort(config.serial);
 
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
+var clients = {};
+var servers = {};
+
 // from browsers.
-io.of('/client').
-  on('connection', function(socket) {
-    console.log('user connected: ' + socket.id);
+io.of('/client')
+  .on('connection', function(socket) {
+    console.log('client connected: ' + socket.id);
+    clients[socket.id] = socket;
     socket.on('disconnect', function() {
-      console.log('user disconnected: ' + socket.id);
+      console.log('client disconnected: ' + socket.id);
+      delete clients[socket.id];
     });
-    socket.on('write', function(msg) {
+    socket.on('gpio-write', function(msg) {
+      console.log('gpio-write(' + msg.pin + ', ' + msg.on + ')');
       gpio.write(msg.pin, msg.on);
+    });
+    socket.on('gpio-read', function(msg) {
+      console.log('gpio-read(' + msg.pin + ')');
+      gpio.read(msg.pin, function(value) {
+        for (client in clients) {
+          clients[client].emit('gpio-value', {pin: msg.pin, on: value});
+        }
+      });
+    });
+    socket.on('serial-write', function(msg) {
+      console.log('serial-write(' + msg + ')');
+      serialPort.write(msg, function(err) {
+        if (err) {
+          console.log('err ' + err);
+        }
+      });
     });
   });
 
@@ -30,15 +51,26 @@ io.of('/client').
 var socket = require('socket.io-client')(config.server + '/pi');
 socket.on('connect', function(){
   console.log('connect');
+  servers[socket.id] = socket;
 });
 socket.on('disconnect', function(){
   console.log('disconnect');
+  delete servers[socket.id];
 });
-socket.on('write', function(msg) {
+socket.on('gpio-write', function(msg) {
+  console.log('gpio-write(' + msg.pin + ', ' + msg.on + ')');
   gpio.write(msg.pin, msg.on);
 });
-socket.on('write-serial', function(msg) {
-  console.log('write-serial: ' + msg);
+socket.on('gpio-read', function(msg) {
+  console.log('gpio-read(' + msg.pin + ')');
+  gpio.read(msg.pin, function(value) {
+    for (server in servers) {
+      servers[server].emit('gpio-value', {pin: msg.pin, on: value});
+    }
+  });
+});
+socket.on('serial-write', function(msg) {
+  console.log('serial-write: ' + msg);
   serialPort.write(msg, function(err) {
     if (err) {
       console.log('err ' + err);
@@ -47,18 +79,21 @@ socket.on('write-serial', function(msg) {
 });
 
 // for serial port.
-serialPort.on("open", function () {
-  console.log('open');
-  serialPort.on('close', function(data) {
-    console.log('close');
+if (config.serial) {
+  var serialPort = new SerialPort(config.serial);
+  serialPort.on("open", function () {
+    console.log('open');
+    serialPort.on('close', function(data) {
+      console.log('close');
+    });
+    serialPort.on('error', function(err) {
+      console.log('error: ' + err);
+    });
+    serialPort.on('data', function(data) {
+      console.log('data received: ' + data);
+    });
   });
-  serialPort.on('error', function(err) {
-    console.log('error: ' + err);
-  });
-  serialPort.on('data', function(data) {
-    console.log('data received: ' + data);
-  });
-});
+}
 
 server.listen(config.port, function() {
   console.log('listening on *:' + config.port);
