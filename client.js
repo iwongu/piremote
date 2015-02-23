@@ -2,20 +2,15 @@ var express = require('express');
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-var fs = require('fs');
 var config = require('./lib/config')('client-config.json');
-var gpio = config.nogpio ? require('./lib/gpio-debug') : require('./lib/gpio');
+var gpio = require('./lib/gpio')(config);
 
-var SerialPort = require("serialport").SerialPort
-
-var servers = {};
-
-app.get('/', function(req, res) {
-  res.sendFile(__dirname + '/pi_b.html');
-});
-app.use('/static', express.static(__dirname + '/static'));
+require('./lib/piapp')(config, express, app, __dirname);
 
 var webclients = require('./lib/webclients')(config, io);
+var piservers = require('./lib/piservers')(config);
+var serial = require('./lib/serial')(config);
+
 webclients
   .on('gpio-write', function(msg) {
     gpio.write(msg.pin, msg.on);
@@ -31,15 +26,10 @@ webclients
     });
   })
   .on('serial-write', function(msg) {
-    serialPort.write(msg, function(err) {
-      if (err) {
-        console.log('err ' + err);
-      }
-    });
+    serial.write(msg);
   });
 webclients.serve();
 
-var piservers = require('./lib/piservers')(config);
 piservers
   .on('gpio-write', function(msg) {
     gpio.write(msg.pin, msg.on);
@@ -55,30 +45,11 @@ piservers
     });
   })
   .on('serial-write', function(msg) {
-    serialPort.write(msg, function(err) {
-      if (err) {
-        console.log('err ' + err);
-      }
-    });
+    serial.write(msg);
   });
 piservers.serve();
 
-// for serial port.
-if (config.serial) {
-  var serialPort = new SerialPort(config.serial);
-  serialPort.on("open", function () {
-    console.log('open');
-    serialPort.on('close', function(data) {
-      console.log('close');
-    });
-    serialPort.on('error', function(err) {
-      console.log('error: ' + err);
-    });
-    serialPort.on('data', function(data) {
-      console.log('data received: ' + data);
-    });
-  });
-}
+serial.serve();
 
 server.listen(config.port, function() {
   console.log('listening on *:' + config.port);

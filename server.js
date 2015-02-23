@@ -2,13 +2,9 @@ var express = require('express');
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-var fs = require('fs');
+var config = require('./lib/config')('server-config.json');
 
-var config = JSON.parse(fs.readFileSync('server-config.json'));
-
-app.get('/', function(req, res) {
-  res.sendFile(__dirname + '/pi_b.html');
-});
+require('./lib/piapp')(config, express, app, __dirname);
 
 var webclients = require('./lib/webclients')(config, io);
 var piclients = require('./lib/piclients')(config, io);
