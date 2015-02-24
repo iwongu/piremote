@@ -20,11 +20,6 @@ webclients
       webclients.broadcast('gpio-value', value);
     });
   })
-  .on('gpio-direction', function(msg) {
-    gpio.direction(msg.pin, msg.dir, function(value) {
-      webclients.broadcast('gpio-value', value);
-    });
-  })
   .on('serial-write', function(msg) {
     serial.write(msg);
   });
@@ -33,11 +28,6 @@ webclients.serve();
 piservers
   .on('gpio-write', function(msg) {
     gpio.write(msg.pin, msg.on);
-  })
-  .on('gpio-direction', function(msg) {
-    gpio.direction(msg.pin, msg.dir, function(value) {
-      piservers.broadcast('gpio-value', value);
-    });
   })
   .on('gpio-read', function(msg) {
     gpio.read(msg.pin, function(value) {

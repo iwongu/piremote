@@ -16,9 +16,6 @@ webclients
   .on('gpio-read', function(msg) {
     piclients.broadcast('gpio-read', msg);
   })
-  .on('gpio-direction', function(msg) {
-    piclients.broadcast('gpio-direction', msg);
-  })
   .on('serial-write', function(msg) {
     piclients.broadcast('gpio-write', msg);
   });
